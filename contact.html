@@ -201,13 +201,13 @@
                         <h4 class="contact-title contact-title1">Send a message</h4>
                         <form action="" method="get">
                             <div class="form-group">
-                                <input class="form-control" type="text" name="prova" id="n" placeholder="Name *" maxlength="20" pattern="[A-Za-z]{2,}" title="Only letters are allowed" required>
+                                <input class="form-control" type="text" name="prova" id="n" placeholder="Name *" maxlength="20" pattern="[A-Za-zÀÈÌÒÙàèìòùÁÉÍÓÚáéíóúÑñÇç\s-]+" title="Numbers don't allowed, but Letters, spaces, and hyphens are allowed (including accented characters)" required>
                             </div>
                             <div class="form-group">
                                 <input class="form-control" type="email" name="email" placeholder="Email *" pattern="[^@\s]+@[^@\s]+\.[^@\s]+" title="Invalid email address" required>
                             </div>
                             <div class="form-group">
-                                <input class="form-control" type="tel" name="phone" id="phone" placeholder="Phone Number *" pattern="^\+(\([0-9]{1,3}\)|[0-9]{1,3})\s?[0-9]{7,13}$" title="Please enter a valid phone number (e.g., +(34) 123456789 or +34123456789)." required>
+                                <input class="form-control" type="tel" name="phone" id="phone" placeholder="Phone Number *" pattern="^\+(\([0-9]{1,3}\)|[0-9]{1,3})(\s?[0-9]{1}){8,13}$" title="Please enter a valid phone number (e.g., +(34) 123456789, +(34)123456789 or +34 123456789, +34123456789)." required>
                             </div>
                             <div class="form-group">
                                 <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
@@ -422,16 +422,41 @@
      
      document.head.appendChild(style);
 
-     // Validación para el campo de Nombre
-    const inputName = document.querySelector('input[name="prova"]');
-    inputName.addEventListener('invalid', function (event) {
-        if (event.target.validity.valueMissing) {
-            event.target.setCustomValidity('Please tell us how we should address you.');
+     // Función para validar nombre con caracteres especiales
+     function validateName(name) {
+            // Regex que permite letras (incluyendo todos los acentos: agudos y graves), espacios y guiones
+            const nameRegex = /^[A-Za-zÀÈÌÒÙàèìòùÁÉÍÓÚáéíóúÑñÇç\s-]+$/;
+            return nameRegex.test(name);
         }
-    });
-    inputName.addEventListener('change', function (event) {
-        event.target.setCustomValidity('');
-    });
+
+        // Selección del input de nombre
+        const inputName = document.querySelector('input[name="prova"]');
+
+        // Evento para controlar la longitud máxima
+        inputName.addEventListener('input', function (event) {
+            const value = event.target.value;
+            
+            // Validación de longitud
+            if (value.length > 20) {
+                event.target.value = value.slice(0, 20);
+            }
+        });
+
+        // Validación cuando el campo es inválido
+        inputName.addEventListener('invalid', function (event) {
+            if (event.target.validity.valueMissing) {
+                event.target.setCustomValidity('Please tell us how we should address you.');
+            } else if (!validateName(event.target.value)) {
+                event.target.setCustomValidity('Please use only letters, spaces, and hyphens (including accented characters).');
+            }
+        });
+
+        // Limpiar el mensaje de error personalizado cuando se cambia el valor
+        inputName.addEventListener('change', function (event) {
+            event.target.setCustomValidity('');
+        });
+
+        // [Resto del código de scripts anterior]
 
     // Validación para el campo de Teléfono
 const inputPhone = document.querySelector('input[name="phone"]');
@@ -439,7 +464,7 @@ inputPhone.addEventListener('invalid', function (event) {
     if (event.target.validity.valueMissing) {
         event.target.setCustomValidity('Please enter your phone number.');
     } else if (event.target.validity.patternMismatch) {
-        event.target.setCustomValidity('Please enter a valid phone number (e.g., +(34) 123456789 or +34123456789).');
+        event.target.setCustomValidity('Please enter a valid phone number (e.g., +(34) 123456789, +(34)123456789 or +34 123456789, +34123456789).');
     }
 });
 inputPhone.addEventListener('change', function (event) {
@@ -458,6 +483,8 @@ inputPhone.addEventListener('change', function (event) {
     inputEmail.addEventListener('change', function (event) {
         event.target.setCustomValidity('');
     });
+
+    
          </script>
 </body>
 </html>
